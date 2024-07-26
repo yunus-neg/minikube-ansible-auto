@@ -1,0 +1,52 @@
+- name: Install minikube
+  become: true
+  ansible.builtin.apt:
+    deb: https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb
+  when: install_minikube
+
+- name: Install pip to install kubernetes for python 
+  become: true
+  ansible.builtin.apt:
+    update_cache: true
+    name:
+      - python3-pip
+  when: install_minikube
+  
+
+- name: Install kubernetes for python 
+  ansible.builtin.pip:
+    name:
+      - kubernetes
+  when: install_minikube
+
+- name: enable delegation mkdir dir
+  become: true
+  ansible.builtin.file:
+    path: /etc/systemd/system/user@.service.d
+    state: directory
+  when: install_minikube
+- name: enable delegation copy file
+  become: true
+  ansible.builtin.copy:
+    src: delegate.conf
+    dest: /etc/systemd/system/user@.service.d/delegate.conf
+  when: install_minikube
+
+- name: daemon-reload
+  become: true
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: install_minikube
+  
+- name: Download kubectl
+  ansible.builtin.shell:
+    cmd: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    chdir: /tmp
+  when: install_kubectl
+
+- name: install kubectl
+  become: true
+  ansible.builtin.shell:
+    cmd: install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+    chdir: /tmp
+  when: install_kubectl

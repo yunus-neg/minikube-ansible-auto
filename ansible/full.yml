@@ -1,0 +1,59 @@
+---
+- name: Full setup
+  gather_facts: false
+  hosts: all
+
+  vars:
+    my_app_name: my-app
+    app_tag: 1
+    app_port: 8080
+    app_path: '../app/'
+    my_local_registry: '{{ ansible_ssh_host  }}:{{ registry_port }}'
+    my_docker_image: "{{ my_local_registry }}/{{ my_app_name }}:{{ app_tag }}"
+  tasks:
+
+  - name: Get env
+    ansible.builtin.setup:
+      filter:
+        - env
+
+  - name: Install docker and deploy registry
+    vars:
+      install_docker: true
+      deploy: true
+      image: registry
+      ports:
+        - "{{ registry_port }}:5000"
+    ansible.builtin.include_role:
+      name: docker
+
+  - name: Build and push my app
+    vars:
+      build: true
+      push: true
+      name: "{{ my_app_name }}"
+      image: "{{ my_app_name }}"
+      tag: "{{app_tag}}"
+      path: "{{ app_path }}"
+    ansible.builtin.include_role:
+      name: docker
+
+
+  - name: Install and run minikube and Deploy app and service
+    vars:
+      start_minikube: true
+      install_minikube: true
+      start_tunnel: true
+      deployment: true
+      service: true
+      app_name: "{{ my_app_name }}"
+      docker_image: "{{ my_docker_image }}"
+      port: "{{ app_port }}"
+    ansible.builtin.include_role:
+      name: minikube
+
+  - name: Service url
+    ansible.builtin.debug:
+      msg:
+      - "check the app using this url (give it a seconds to be ready)"
+      - "http://{{ ansible_ssh_host }}:{{app_port}}"

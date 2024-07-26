@@ -1,0 +1,13 @@
+---
+# defaults file for roles/docker
+install_docker: false
+image_name: ''
+tag: latest
+registry_port: 5000
+local_registry: 'localhost:{{ registry_port }}'
+sock: "unix://{{ ansible_facts.env.XDG_RUNTIME_DIR }}/docker.sock" # because we are using rootless docker
+ports: []
+deploy: false
+build: false
+push: false
+daemon_config_path: "{{ ansible_facts.env.HOME }}/.config/docker/daemon.json"

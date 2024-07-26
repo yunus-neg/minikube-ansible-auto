@@ -1,0 +1,14 @@
+---
+# tasks file for roles/minikube
+- name: Install minikube
+  ansible.builtin.include_tasks: install-minikube.yml
+  when: install_minikube or install_kubectl
+
+- name: Install minikube
+  ansible.builtin.include_tasks: start-minikube.yml
+  when: start_minikube or start_tunnel
+
+- name: Deployment and Service
+  ansible.builtin.include_tasks: deployment-service.yml
+  when: deployment or service
+ 

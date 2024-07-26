@@ -1,0 +1,9 @@
+
+- name: Install docker
+  become: true
+  ansible.builtin.script:
+    cmd: install-docker.sh
+
+- name: Install docker rootless
+  ansible.builtin.shell:
+    cmd: dockerd-rootless-setuptool.sh install

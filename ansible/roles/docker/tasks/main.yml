@@ -1,0 +1,14 @@
+---
+# tasks file for roles/docker
+
+- name: Install docker
+  ansible.builtin.include_tasks: install-docker.yml
+  when: install_docker
+
+- name: Add insecure registry
+  ansible.builtin.include_tasks: insecure-registry.yml
+  when: local_registry != 'localhost:5000'
+
+- name: Docker images
+  ansible.builtin.include_tasks: images.yml
+  when: deploy or build

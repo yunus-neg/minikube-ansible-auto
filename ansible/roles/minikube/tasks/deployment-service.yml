@@ -1,0 +1,45 @@
+- name: deploy {{ app_name }}
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: "{{ app_name }}-deployment"
+        namespace: "{{ namespace }}"
+      spec:
+        replicas: "{{ replicas_count }}"
+        selector:
+          matchLabels:
+            app: "{{ app_name }}"
+        template:
+          metadata:
+            labels:
+              app: "{{ app_name }}"
+          spec:
+            containers:
+            - name: "{{ app_name }}-container"
+              image: "{{ docker_image }}"
+              ports:
+              - containerPort: "{{ port }}"
+
+  when: deployment
+
+- name: service for {{ app_name }}
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ app_name }}-service"
+        namespace: "{{ namespace }}"
+      spec:
+        type: LoadBalancer
+        selector:
+          app: "{{ app_name }}"
+        ports:
+          - protocol: TCP
+            port: "{{ port }}"
+
+  when: service

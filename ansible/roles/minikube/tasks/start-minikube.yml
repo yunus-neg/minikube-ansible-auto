@@ -1,0 +1,12 @@
+- name: Start minikube
+  ansible.builtin.shell:
+    cmd: "minikube start --driver=docker --insecure-registry='{{ insecure_registry }}'"
+  when: start_minikube
+
+- name: Start minikube tunnel for 600 sec
+  ansible.builtin.shell:
+    cmd: "minikube tunnel --bind-address='0.0.0.0'"
+  async: 600
+  poll: 0
+  when: start_tunnel
+  

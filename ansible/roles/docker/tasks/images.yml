@@ -1,0 +1,32 @@
+- name: Deploy image {{ image }}:{{ tag }}
+  community.docker.docker_container:
+    docker_host: "{{ sock }}"
+    name: "{{ image_name or image}}"
+    image: "{{ image }}:{{ tag }}"
+    ports: "{{ ports }}"
+  when: deploy
+
+- name: Copy app to remote host
+  ansible.builtin.copy:
+    src: "{{ path }}/"
+    dest: "/tmp/{{ image }}-{{ tag }}"
+  register: build_path
+  when: build
+
+- name: Build{{ ' and push ' if push else ' ' }}image {{ image }}:{{ tag }}
+  community.docker.docker_image:
+    docker_host: "{{ sock }}"
+    source: build
+    build:
+      path: "{{ build_path.dest  }}"
+    name: "{{ local_registry }}/{{ image }}"
+    tag: "{{ tag }}"
+    push: "{{ push }}"
+  when: build
+
+- name: Remove copied app 
+  ansible.builtin.file:
+    state: absent
+    path: "{{ build_path.dest  }}"
+  when: build
+

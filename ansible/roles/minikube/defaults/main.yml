@@ -1,0 +1,12 @@
+---
+# defaults file for roles/minikube
+insecure_registry: "{{ ansible_ssh_host }}:5000"
+install_minikube: false
+install_kubectl: "{{ install_minikube }}"
+start_minikube: false
+start_tunnel: "{{ start_minikube }}"
+replicas_count: 2
+deployment: false
+service: false
+namespace: kube-system
+registry_port: 5000
