@@ -55,4 +55,4 @@ to redeploy the app again:
 `ansible-playbook -i inventory -kK deploy.yml`
 
 
-NOTE: this use tested in ubuntu 22
+NOTE: this was tested in ubuntu 22
